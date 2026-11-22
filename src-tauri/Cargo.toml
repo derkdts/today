@@ -1,3 +1,4 @@
+[package]
 name = "vaultflow"
 version = "0.1.0"
 description = "VaultFlow — Notes, Tasks, Passwords, OAuth/2FA & Base64 on Tauri + Rust"
