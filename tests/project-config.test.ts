@@ -60,6 +60,7 @@ describe('Tauri v2, Rust & GitHub Actions Integrity', () => {
     assert.match(wf, /tauri android init --ci/);
     assert.match(wf, /tauri android build --apk --debug/);
     assert.match(wf, /rm -f package-lock\.json && npm install/);
+    assert.match(wf, /softprops\/action-gh-release@v2/);
     assert.match(wf, /npm test/);
   });
 });

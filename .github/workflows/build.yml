@@ -176,3 +176,33 @@ jobs:
           path: |
             src-tauri/gen/android/app/build/outputs/apk/**/*.apk
           if-no-files-found: warn
+
+  release:
+    name: Publish GitHub Release
+    needs: [build-desktop, build-android]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: downloaded-artifacts
+
+      - name: Collect release files
+        run: |
+          mkdir -p release-files
+          find downloaded-artifacts -type f \( -name "*.msi" -o -name "*.exe" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.apk" \) -exec cp -vf {} release-files/ \;
+          ls -lh release-files/
+
+      - name: Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'latest' }}
+          name: ${{ startsWith(github.ref, 'refs/tags/') && format('WorkDesk {0}', github.ref_name) || 'WorkDesk (Latest Build)' }}
+          draft: false
+          prerelease: false
+          make_latest: true
+          generate_release_notes: true
+          files: release-files/*
+
