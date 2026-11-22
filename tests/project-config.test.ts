@@ -36,6 +36,7 @@ describe('Tauri v2, Rust & GitHub Actions Integrity', () => {
     const libRs = fs.readFileSync(path.join(ROOT, 'src-tauri', 'src', 'lib.rs'), 'utf8');
     assert.match(libRs, /#\[cfg_attr\(mobile, tauri::mobile_entry_point\)\]/);
     assert.match(libRs, /tauri_plugin_opener::init\(\)/);
+    assert.match(libRs, /rng\.fill_bytes\(&mut verifier_bytes\)/);
   });
 
   it('has Tauri v2 capabilities granting core:default and opener:default', () => {
@@ -54,6 +55,7 @@ describe('Tauri v2, Rust & GitHub Actions Integrity', () => {
     assert.match(wf, /ubuntu-22\.04/);
     assert.match(wf, /x86_64-pc-windows-msvc/);
     assert.match(wf, /x86_64-unknown-linux-gnu/);
+    assert.match(wf, /android-actions\/setup-android@v4/);
     assert.match(wf, /aarch64-linux-android/);
     assert.match(wf, /tauri android init --ci/);
     assert.match(wf, /tauri android build --apk --debug/);

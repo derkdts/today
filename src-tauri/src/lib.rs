@@ -1,7 +1,7 @@
 use base64::{engine::general_purpose, Engine as _};
 use data_encoding::BASE32_NOPAD;
 use hmac::{Hmac, Mac};
-use rand::{rngs::OsRng, Rng};
+use rand::{rngs::OsRng, Rng, RngCore};
 use serde::{Deserialize, Serialize};
 use sha1::Sha1;
 use sha2::{Digest, Sha256, Sha512};
@@ -428,9 +428,9 @@ fn generate_pkce_pair() -> PkcePair {
     let mut verifier_bytes = [0u8; 48];
     let mut state_bytes = [0u8; 24];
     let mut nonce_bytes = [0u8; 24];
-    rng.fill(&mut verifier_bytes);
-    rng.fill(&mut state_bytes);
-    rng.fill(&mut nonce_bytes);
+    rng.fill_bytes(&mut verifier_bytes);
+    rng.fill_bytes(&mut state_bytes);
+    rng.fill_bytes(&mut nonce_bytes);
 
     let code_verifier = general_purpose::URL_SAFE_NO_PAD.encode(verifier_bytes);
     let digest = Sha256::digest(code_verifier.as_bytes());

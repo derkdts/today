@@ -137,13 +137,12 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK & NDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools platforms;android-34 build-tools;34.0.0 ndk;27.0.12077973
 
-      - name: Install Android SDK platforms & NDK
-        run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0" "ndk;27.0.12077973"
-          echo "NDK_HOME=${ANDROID_HOME}/ndk/27.0.12077973" >> $GITHUB_ENV
+      - name: Configure NDK_HOME
+        run: echo "NDK_HOME=${ANDROID_HOME}/ndk/27.0.12077973" >> $GITHUB_ENV
 
       - name: Setup Rust toolchain with Android targets
         uses: dtolnay/rust-toolchain@stable
