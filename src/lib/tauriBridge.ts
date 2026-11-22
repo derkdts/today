@@ -164,8 +164,9 @@ export async function computeTotp(
   digits = 6,
   period = 30,
   algorithm: 'SHA1' | 'SHA256' | 'SHA512' = 'SHA1',
+  nowSecOverride?: number,
 ): Promise<TotpCodeResult> {
-  if (isTauriRuntime()) {
+  if (isTauriRuntime() && nowSecOverride === undefined) {
     return tauriInvoke<TotpCodeResult>('compute_totp', {
       secret,
       digits,
@@ -176,7 +177,7 @@ export async function computeTotp(
 
   const secretBytes = decodeBase32(secret);
   const safePeriod = period > 0 ? period : 30;
-  const nowSec = Math.floor(Date.now() / 1000);
+  const nowSec = nowSecOverride ?? Math.floor(Date.now() / 1000);
   const counter = Math.floor(nowSec / safePeriod);
   const remainingSeconds = safePeriod - (nowSec % safePeriod);
 

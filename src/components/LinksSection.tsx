@@ -101,6 +101,17 @@ export function LinksSection({
     if (!/^https?:\/\//i.test(trimmedUrl)) {
       trimmedUrl = `https://${trimmedUrl}`;
     }
+    try {
+      const parsed = new URL(trimmedUrl);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        setFormError('Поддерживаются только http:// и https:// адреса');
+        return;
+      }
+      trimmedUrl = parsed.toString();
+    } catch {
+      setFormError('Некорректный формат URL');
+      return;
+    }
 
     if (editingId) {
       onChange(

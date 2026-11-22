@@ -17,8 +17,35 @@ permissions:
   contents: write
 
 jobs:
+  test:
+    name: Lint, Unit Tests & Web Build
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: TypeScript typecheck
+        run: npm run lint
+
+      - name: Run automated tests
+        run: npm test
+
+      - name: Build frontend bundle
+        run: npm run build
+
   build-desktop:
     name: Build Desktop (${{ matrix.name }})
+    needs: test
     strategy:
       fail-fast: false
       matrix:
@@ -66,6 +93,9 @@ jobs:
         with:
           workspaces: 'src-tauri -> target'
 
+      - name: Run Rust tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml
+
       - name: Install frontend dependencies
         run: npm ci
 
@@ -87,6 +117,7 @@ jobs:
 
   build-android:
     name: Build Android (APK)
+    needs: test
     runs-on: ubuntu-22.04
 
     steps:

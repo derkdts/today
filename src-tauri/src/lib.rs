@@ -338,6 +338,27 @@ fn compute_totp(
     })
 }
 
+fn percent_decode(input: &str) -> String {
+    let bytes = input.as_bytes();
+    let mut out = Vec::with_capacity(bytes.len());
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'%' && i + 2 < bytes.len() {
+            if let (Some(hi), Some(lo)) = (
+                (bytes[i + 1] as char).to_digit(16),
+                (bytes[i + 2] as char).to_digit(16),
+            ) {
+                out.push(((hi << 4) | lo) as u8);
+                i += 3;
+                continue;
+            }
+        }
+        out.push(bytes[i]);
+        i += 1;
+    }
+    String::from_utf8_lossy(&out).into_owned()
+}
+
 #[tauri::command]
 fn parse_otpauth_uri(uri: String) -> Result<ParsedOtpAuthUri, String> {
     let parsed = Url::parse(uri.trim()).map_err(|_| "Некорректный формат otpauth:// URI".to_string())?;
@@ -345,9 +366,9 @@ fn parse_otpauth_uri(uri: String) -> Result<ParsedOtpAuthUri, String> {
         return Err("URI должен начинаться с otpauth://".to_string());
     }
 
-    let raw_label = parsed.path().trim_start_matches('/');
+    let raw_label = percent_decode(parsed.path().trim_start_matches('/'));
     let mut issuer = String::new();
-    let mut label = raw_label.to_string();
+    let mut label = raw_label.clone();
 
     if let Some((iss, lbl)) = raw_label.split_once(':') {
         issuer = iss.trim().to_string();
@@ -492,3 +513,62 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running WorkDesk Tauri application");
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_password_generation_and_ambiguous_filter() {
+        let res = generate_password(32, true, true, true, false, true).unwrap();
+        assert_eq!(res.password.len(), 32);
+        for ch in ['0', 'O', '1', 'l', 'I'] {
+            assert!(!res.password.contains(ch));
+        }
+        assert!(res.entropy_bits > 150.0);
+    }
+
+    #[test]
+    fn test_base64_utf8_and_urlsafe_roundtrip() {
+        let original = "Привет, WorkDesk! {\"ok\":true}";
+        let encoded = encode_base64(original.to_string(), true, true);
+        assert!(!encoded.contains('='));
+        let decoded = decode_base64(encoded, true).unwrap();
+        assert_eq!(decoded, original);
+    }
+
+    #[test]
+    fn test_rfc6238_totp_vectors() {
+        let secret_sha1 = b"12345678901234567890";
+        assert_eq!(
+            totp_for_counter(secret_sha1, 59 / 30, 8, "SHA1").unwrap(),
+            "94287082"
+        );
+        assert_eq!(
+            totp_for_counter(secret_sha1, 1111111109 / 30, 8, "SHA1").unwrap(),
+            "07081804"
+        );
+    }
+
+    #[test]
+    fn test_parse_otpauth_uri_decodes_email() {
+        let parsed = parse_otpauth_uri(
+            "otpauth://totp/GitHub:dev%40company.ru?secret=JBSWY3DPEHPK3PXP&issuer=GitHub&digits=6&period=30"
+                .to_string(),
+        )
+        .unwrap();
+        assert_eq!(parsed.issuer, "GitHub");
+        assert_eq!(parsed.label, "dev@company.ru");
+        assert_eq!(parsed.secret, "JBSWY3DPEHPK3PXP");
+        assert_eq!(parsed.digits, 6);
+    }
+
+    #[test]
+    fn test_pkce_s256_challenge() {
+        let pair = generate_pkce_pair();
+        let digest = Sha256::digest(pair.code_verifier.as_bytes());
+        let expected = general_purpose::URL_SAFE_NO_PAD.encode(digest);
+        assert_eq!(pair.code_challenge, expected);
+    }
+}
+

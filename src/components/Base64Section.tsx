@@ -76,14 +76,23 @@ export function Base64Section({copiedId, onCopy}: Base64SectionProps) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      const dataUrl = typeof reader.result === 'string' ? reader.result : '';
-      const base64Part = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
-      if (mode === 'encode') {
+      const buffer = reader.result;
+      if (!(buffer instanceof ArrayBuffer)) return;
+      const bytes = new Uint8Array(buffer);
+      try {
+        const text = new TextDecoder('utf-8', {fatal: true}).decode(bytes);
+        setMode('encode');
+        setInput(text);
+      } catch {
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
         setMode('decode');
+        setInput(btoa(binary));
       }
-      setInput(base64Part);
     };
-    reader.readAsDataURL(file);
+    reader.readAsArrayBuffer(file);
     e.target.value = '';
   };
 
