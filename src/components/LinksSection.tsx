@@ -22,7 +22,7 @@ interface LinksSectionProps {
   onChange: (next: WorkLink[]) => void;
 }
 
-const DEFAULT_CATEGORIES = ['Все', 'Инфраструктура', 'Документация', 'Сервисы', 'Репозитории'];
+const DEFAULT_CATEGORIES = ['Все', 'Основные'];
 
 export function LinksSection({
   links,
@@ -40,7 +40,7 @@ export function LinksSection({
 
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
-  const [category, setCategory] = useState('Инфраструктура');
+  const [category, setCategory] = useState('Основные');
   const [description, setDescription] = useState('');
   const [formError, setFormError] = useState('');
 
@@ -70,7 +70,7 @@ export function LinksSection({
     setEditingId(null);
     setTitle('');
     setUrl('');
-    setCategory(selectedCategory !== 'Все' ? selectedCategory : 'Инфраструктура');
+    setCategory(selectedCategory !== 'Все' ? selectedCategory : 'Основные');
     setDescription('');
     setFormError('');
     setIsFormOpen(true);
