@@ -1,0 +1,134 @@
+name: Build Tauri App (Windows, Linux, Android)
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_target:
+        description: 'Что собрать'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - desktop
+          - android
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-desktop:
+    name: Build Desktop (${{ matrix.platform }})
+    if: github.event.inputs.build_target == 'all' || github.event.inputs.build_target == 'desktop' || github.event.inputs.build_target == ''
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+          - platform: ubuntu-22.04
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Linux dependencies (Ubuntu)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2.0.0" --locked
+
+      - name: Generate Icons (if missing)
+        run: |
+          if [ ! -f "src-tauri/icons/icon.icns" ]; then
+            cargo tauri icon app-icon.png
+          fi
+
+      - name: Build Tauri Desktop App
+        run: cargo tauri build --no-bundle
+
+      - name: Upload Windows binary artifact
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-windows
+          path: src-tauri/target/release/vaultflow.exe
+
+      - name: Upload Linux binary artifact
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-linux
+          path: src-tauri/target/release/vaultflow
+
+  build-android:
+    name: Build Android (APK)
+    if: github.event.inputs.build_target == 'all' || github.event.inputs.build_target == 'android' || github.event.inputs.build_target == ''
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android NDK and Build Tools
+        run: |
+          sdkmanager --install "ndk;26.3.11579264" "build-tools;34.0.0" "platforms;android-34"
+          echo "NDK_HOME=$ANDROID_HOME/ndk/26.3.11579264" >> $GITHUB_ENV
+
+      - name: Setup Rust toolchain with Android targets
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install Tauri CLI and Initialize Android
+        run: |
+          cargo install tauri-cli --version "^2.0.0" --locked
+          if [ ! -f "src-tauri/icons/icon.icns" ]; then
+            cargo tauri icon app-icon.png
+          fi
+          if [ ! -d "src-tauri/gen/android" ]; then
+            cargo tauri android init
+          fi
+
+      - name: Build debug/unsigned APK
+        run: cargo tauri android build --apk --debug
+
+      - name: Upload Android APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: src-tauri/gen/android/app/build/outputs/apk/**/debug/*.apk
