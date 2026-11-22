@@ -6,265 +6,279 @@
   <title>VaultFlow</title>
   <style>
     :root {
-      --bg-main: #0c0f0e;
-      --bg-panel: #131816;
-      --bg-card: #18201d;
-      --bg-input: #101513;
-      --border: #24322d;
-      --accent: #10b981;
-      --accent-hover: #059669;
-      --accent-soft: rgba(16, 185, 129, 0.14);
-      --text-main: #ecfdf5;
-      --text-muted: #8fa89e;
+      --bg: #0b1210;
+      --surface: #121c19;
+      --surface-2: #192723;
+      --border: #243832;
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --text: #ecfdf5;
+      --muted: #86a399;
       --danger: #ef4444;
       --warning: #f59e0b;
-      --radius: 12px;
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-
-    /* Sidebar / Navigation */
-    .sidebar {
-      width: 240px; background: var(--bg-panel); border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; padding: 20px 14px; gap: 6px; flex-shrink: 0;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+    aside {
+      width: 240px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
     }
     .brand {
-      display: flex; align-items: center; gap: 10px; padding: 6px 10px 18px;
-      font-size: 19px; font-weight: 700; color: var(--accent); letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      padding: 6px 10px 18px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
     }
-    .brand-badge {
-      font-size: 11px; padding: 2px 7px; border-radius: 99px;
-      background: var(--accent-soft); color: var(--accent); font-weight: 600; margin-left: auto;
+    .badge {
+      font-size: 0.7rem;
+      background: var(--surface-2);
+      color: var(--muted);
+      padding: 2px 6px;
+      border-radius: 6px;
+      margin-left: auto;
     }
-    .nav-btn {
-      display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 14px;
-      border: none; border-radius: var(--radius); background: transparent; color: var(--text-muted);
-      font-size: 14px; font-weight: 500; cursor: pointer; text-align: left; transition: 0.15s;
+    nav button {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      text-align: left;
+      padding: 11px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .nav-btn:hover { background: var(--bg-card); color: var(--text-main); }
-    .nav-btn.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-
-    /* Main Content */
-    .main { flex: 1; overflow-y: auto; padding: 26px 30px; display: flex; flex-direction: column; gap: 20px; }
-    .section { display: none; flex-direction: column; gap: 18px; max-width: 920px; width: 100%; margin: 0 auto; }
-    .section.active { display: flex; }
-
-    h1 { font-size: 22px; font-weight: 700; }
-    .subtitle { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
-
+    nav button:hover, nav button.active {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+    nav button.active {
+      border-left: 3px solid var(--primary);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    main {
+      flex: 1;
+      padding: 28px;
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .tab { display: none; }
+    .tab.active { display: block; }
+    h1 { font-size: 1.5rem; margin-bottom: 18px; }
     .card {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 18px; display: flex; flex-direction: column; gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
     }
     .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .space-between { justify-content: space-between; }
-
-    input[type="text"], input[type="date"], input[type="number"], textarea, select {
-      background: var(--bg-input); border: 1px solid var(--border); border-radius: 9px;
-      color: var(--text-main); padding: 10px 12px; font-size: 14px; outline: none; width: 100%;
+    input, textarea, select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
     }
-    input:focus, textarea:focus, select:focus { border-color: var(--accent); }
-    textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
-
-    .btn {
-      background: var(--accent); color: #052e16; border: none; border-radius: 9px;
-      padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.15s;
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;
+    textarea { min-height: 110px; resize: vertical; }
+    button.btn {
+      background: var(--primary);
+      color: #042f2e;
+      font-weight: 600;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
     }
-    .btn:hover { background: var(--accent-hover); color: #fff; }
-    .btn-secondary { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); }
-    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--bg-input); }
-    .btn-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); padding: 6px 10px; font-size: 12px; }
-    .btn-danger:hover { background: var(--danger); color: #fff; }
-
-    /* Lists */
-    .item-list { display: flex; flex-direction: column; gap: 10px; }
-    .list-item {
-      background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px;
-      padding: 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+    button.btn:hover { background: var(--primary-hover); }
+    button.btn-sec {
+      background: var(--surface-2);
+      color: var(--text);
+      border: 1px solid var(--border);
     }
-    .tag {
-      display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 6px;
-      background: var(--accent-soft); color: var(--accent); margin-right: 5px; margin-top: 6px;
+    button.btn-del {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
     }
-    .priority-high { color: var(--danger); font-weight: 600; font-size: 12px; }
-    .priority-medium { color: var(--warning); font-weight: 600; font-size: 12px; }
-    .priority-low { color: var(--accent); font-weight: 600; font-size: 12px; }
-    .completed-text { text-decoration: line-through; opacity: 0.55; }
-
-    /* Password & TOTP outputs */
-    .mono-box {
-      background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px;
-      padding: 14px 16px; font-family: "JetBrains Mono", "Fira Code", monospace;
-      font-size: 17px; letter-spacing: 0.5px; word-break: break-all; color: var(--accent);
-      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    .item {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
     }
-    .totp-code { font-size: 28px; font-weight: 700; letter-spacing: 4px; color: var(--accent); font-family: monospace; }
-    .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); cursor: pointer; }
-    .checkbox-label input { accent-color: var(--accent); width: 16px; height: 16px; }
-
-    /* Toast */
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      word-break: break-all;
+      font-size: 1.05rem;
+      color: var(--primary);
+    }
+    .totp-code { font-size: 1.8rem; font-weight: 700; letter-spacing: 4px; color: var(--primary); }
+    label.chk { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; }
+    label.chk input { width: auto; margin: 0; }
     .toast {
-      position: fixed; bottom: 20px; right: 20px; background: var(--accent); color: #052e16;
-      padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 13px;
-      opacity: 0; transform: translateY(10px); transition: 0.2s; pointer-events: none; z-index: 999;
+      position: fixed; bottom: 20px; right: 20px;
+      background: var(--primary); color: #042f2e;
+      padding: 10px 16px; border-radius: 8px; font-weight: 600;
+      display: none; z-index: 99;
     }
-    .toast.show { opacity: 1; transform: translateY(0); }
-
-    /* Mobile Responsive */
     @media (max-width: 768px) {
       body { flex-direction: column; }
-      .sidebar {
-        width: 100%; flex-direction: row; overflow-x: auto; padding: 10px;
-        border-right: none; border-bottom: 1px solid var(--border); gap: 4px;
+      aside {
+        width: 100%; flex-direction: row; overflow-x: auto;
+        padding: 10px; border-right: none; border-bottom: 1px solid var(--border);
       }
-      .brand { display: none; }
-      .nav-btn { width: auto; padding: 8px 12px; font-size: 13px; white-space: nowrap; }
-      .main { padding: 16px; }
+      .brand { border-bottom: none; padding: 0 8px 0 0; margin: 0; }
+      nav { display: flex; gap: 6px; }
+      nav button { white-space: nowrap; padding: 8px 12px; }
+      nav button.active { border-left: none; border-bottom: 2px solid var(--primary); }
+      main { padding: 16px; }
     }
   </style>
 </head>
 <body>
-
-  <aside class="sidebar">
-    <div class="brand">
-      <span>🛡️ VaultFlow</span>
-      <span class="brand-badge" id="envBadge">WEB</span>
-    </div>
-    <button class="nav-btn active" data-tab="notes">📝 Заметки</button>
-    <button class="nav-btn" data-tab="tasks">✅ Задачи</button>
-    <button class="nav-btn" data-tab="passwords">🔑 Пароли</button>
-    <button class="nav-btn" data-tab="totp">⏱️ 2FA / TOTP</button>
-    <button class="nav-btn" data-tab="base64">🧬 Base64</button>
-    <button class="nav-btn" data-tab="oauth">🔐 OAuth 2.0</button>
+  <aside>
+    <div class="brand">🛡️ VaultFlow <span class="badge" id="envBadge">WEB</span></div>
+    <nav>
+      <button class="active" data-tab="notes">📝 Заметки</button>
+      <button data-tab="tasks">✅ Задачи</button>
+      <button data-tab="passwords">🔑 Пароли</button>
+      <button data-tab="totp">⏱️ 2FA TOTP</button>
+      <button data-tab="base64">🔄 Base64</button>
+      <button data-tab="oauth">🌐 OAuth 2.0</button>
+    </nav>
   </aside>
 
-  <main class="main">
-    <!-- 1. ЗАМЕТКИ -->
-    <section id="tab-notes" class="section active">
-      <div>
-        <h1>Заметки</h1>
-        <p class="subtitle">Локальное хранилище SQLite с поиском по тегам и заголовкам</p>
-      </div>
+  <main>
+    <section id="notes" class="tab active">
+      <h1>Заметки</h1>
       <div class="card">
-        <input type="text" id="noteTitle" placeholder="Заголовок заметки..." />
-        <input type="text" id="noteTags" placeholder="Теги через запятую (например: работа, идеи, rust)" />
+        <input id="noteTitle" placeholder="Заголовок заметки" />
+        <input id="noteTags" placeholder="Теги (через запятую)" />
         <textarea id="noteContent" placeholder="Текст заметки..."></textarea>
-        <div class="row space-between">
-          <input type="text" id="noteSearch" placeholder="🔍 Поиск по заметкам..." style="max-width: 280px;" oninput="renderNotes()" />
-          <button class="btn" onclick="saveNote()">Сохранить заметку</button>
-        </div>
+        <button class="btn" onclick="addNote()">Сохранить заметку</button>
       </div>
-      <div class="item-list" id="notesList"></div>
+      <div id="notesList"></div>
     </section>
 
-    <!-- 2. ЗАДАЧИ -->
-    <section id="tab-tasks" class="section">
-      <div>
-        <h1>Задачи</h1>
-        <p class="subtitle">Планировщик с приоритетами и дедлайнами</p>
-      </div>
+    <section id="tasks" class="tab">
+      <h1>Задачи</h1>
       <div class="card">
         <div class="row">
-          <input type="text" id="taskTitle" placeholder="Новая задача..." style="flex: 2; min-width: 200px;" />
-          <select id="taskPriority" style="flex: 1; min-width: 130px;">
-            <option value="low">Низкий приоритет</option>
-            <option value="medium" selected>Средний приоритет</option>
-            <option value="high">Высокий приоритет</option>
+          <input id="taskTitle" placeholder="Новая задача..." style="flex:2; min-width:200px;" />
+          <select id="taskPriority" style="flex:1; min-width:120px;">
+            <option value="low">Низкий</option>
+            <option value="medium" selected>Средний</option>
+            <option value="high">Высокий</option>
           </select>
-          <input type="date" id="taskDue" style="flex: 1; min-width: 140px;" />
-          <button class="btn" onclick="addTask()">Добавить</button>
+          <input id="taskDue" type="date" style="flex:1; min-width:140px;" />
         </div>
+        <button class="btn" onclick="addTask()">Добавить задачу</button>
       </div>
-      <div class="item-list" id="tasksList"></div>
+      <div id="tasksList"></div>
     </section>
 
-    <!-- 3. ГЕНЕРАТОР ПАРОЛЕЙ -->
-    <section id="tab-passwords" class="section">
-      <div>
-        <h1>Генератор паролей</h1>
-        <p class="subtitle">Криптостойкая генерация на базе системного OsRng (Rust)</p>
-      </div>
+    <section id="passwords" class="tab">
+      <h1>Генератор криптостойких паролей</h1>
       <div class="card">
-        <div class="mono-box">
-          <span id="pwdOutput">Нажмите «Сгенерировать»</span>
-          <button class="btn btn-secondary" onclick="copyText(document.getElementById('pwdOutput').innerText)">Копировать</button>
-        </div>
-        <div class="row space-between">
-          <span style="font-size: 13px; color: var(--text-muted);">Длина: <strong id="pwdLenVal" style="color: var(--accent);">20</strong> символов</span>
-          <span style="font-size: 13px; color: var(--text-muted);">Энтропия: <strong id="pwdEntropy" style="color: var(--accent);">0 бит</strong></span>
-        </div>
-        <input type="range" id="pwdLength" min="8" max="64" value="20" style="width: 100%; accent-color: var(--accent);"
-               oninput="document.getElementById('pwdLenVal').innerText = this.value; generatePassword();" />
-        <div class="row" style="gap: 18px;">
-          <label class="checkbox-label"><input type="checkbox" id="optUpper" checked onchange="generatePassword()" /> A–Z</label>
-          <label class="checkbox-label"><input type="checkbox" id="optLower" checked onchange="generatePassword()" /> a–z</label>
-          <label class="checkbox-label"><input type="checkbox" id="optNum" checked onchange="generatePassword()" /> 0–9</label>
-          <label class="checkbox-label"><input type="checkbox" id="optSym" checked onchange="generatePassword()" /> !@#$%</label>
-          <label class="checkbox-label"><input type="checkbox" id="optAmbig" onchange="generatePassword()" /> Без похожих (I, l, 1, 0, O)</label>
-        </div>
-        <div>
-          <button class="btn" onclick="generatePassword()">Сгенерировать пароль</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. TOTP 2FA -->
-    <section id="tab-totp" class="section">
-      <div>
-        <h1>Аутентификатор 2FA (TOTP)</h1>
-        <p class="subtitle">RFC 6238 (SHA1, 6 цифр, шаг 30 секунд)</p>
-      </div>
-      <div class="card">
-        <div class="row">
-          <input type="text" id="totpIssuer" placeholder="Сервис (например: GitHub)" style="flex: 1;" />
-          <input type="text" id="totpAccount" placeholder="Аккаунт (user@mail.com)" style="flex: 1;" />
+        <div class="mono" id="pwdOutput" style="margin-bottom:12px;">Нажмите «Сгенерировать»</div>
+        <div style="color:var(--muted); font-size:0.85rem; margin-bottom:14px;" id="pwdEntropy">Энтропия: — бит</div>
+        <label>Длина: <span id="pwdLenVal">20</span></label>
+        <input type="range" id="pwdLen" min="8" max="64" value="20" oninput="document.getElementById('pwdLenVal').textContent=this.value" />
+        <div class="row" style="margin-bottom:14px; gap:16px;">
+          <label class="chk"><input type="checkbox" id="optUpper" checked /> A-Z</label>
+          <label class="chk"><input type="checkbox" id="optLower" checked /> a-z</label>
+          <label class="chk"><input type="checkbox" id="optNum" checked /> 0-9</label>
+          <label class="chk"><input type="checkbox" id="optSym" checked /> !@#$%</label>
+          <label class="chk"><input type="checkbox" id="optAmb" /> Без похожих (I,l,1,O,0)</label>
         </div>
         <div class="row">
-          <input type="text" id="totpSecret" placeholder="Секретный ключ Base32 (например: JBSWY3DPEHPK3PXP)" style="flex: 2;" />
-          <button class="btn" onclick="addTotpAccount()">Добавить ключ</button>
-        </div>
-      </div>
-      <div class="item-list" id="totpList"></div>
-    </section>
-
-    <!-- 5. BASE64 -->
-    <section id="tab-base64" class="section">
-      <div>
-        <h1>Base64 Кодировщик</h1>
-        <p class="subtitle">Поддержка UTF-8 и URL-Safe режима без padding</p>
-      </div>
-      <div class="card">
-        <textarea id="b64Input" placeholder="Введите исходный текст или строку Base64..."></textarea>
-        <div class="row space-between">
-          <label class="checkbox-label"><input type="checkbox" id="b64UrlSafe" /> URL-Safe режим (без =)</label>
-          <div class="row">
-            <button class="btn" onclick="runBase64('encode')">Кодировать → Base64</button>
-            <button class="btn btn-secondary" onclick="runBase64('decode')">Декодировать ← UTF-8</button>
-          </div>
-        </div>
-        <textarea id="b64Output" readonly placeholder="Результат появится здесь..."></textarea>
-        <div>
-          <button class="btn btn-secondary" onclick="copyText(document.getElementById('b64Output').value)">Копировать результат</button>
+          <button class="btn" onclick="genPassword()">Сгенерировать</button>
+          <button class="btn btn-sec" onclick="copyText(document.getElementById('pwdOutput').textContent)">Копировать</button>
         </div>
       </div>
     </section>
 
-    <!-- 6. OAUTH 2.0 PKCE -->
-    <section id="tab-oauth" class="section">
-      <div>
-        <h1>OAuth 2.0 PKCE + Deep Link</h1>
-        <p class="subtitle">Авторизация через системный браузер с возвратом на vaultflow://oauth/callback</p>
-      </div>
+    <section id="totp" class="tab">
+      <h1>2FA Аутентификатор (TOTP)</h1>
       <div class="card">
         <div class="row">
+          <input id="totpIssuer" placeholder="Сервис (например: GitHub)" style="flex:1;" />
+          <input id="totpAccount" placeholder="Аккаунт (user@mail.com)" style="flex:1;" />
+        </div>
+        <input id="totpSecret" placeholder="Base32 секрет (например: JBSWY3DPEHPK3PXP)" />
+        <button class="btn" onclick="addTotp()">Добавить токен</button>
+      </div>
+      <div id="totpList"></div>
+    </section>
+
+    <section id="base64" class="tab">
+      <h1>Кодирование / Декодирование Base64</h1>
+      <div class="card">
+        <textarea id="b64Input" placeholder="Введите текст или Base64 строку..."></textarea>
+        <div class="row" style="margin-bottom:12px;">
+          <label class="chk"><input type="checkbox" id="b64UrlSafe" /> URL-Safe Base64 (без =)</label>
+        </div>
+        <div class="row" style="margin-bottom:12px;">
+          <button class="btn" onclick="runBase64('encode')">Кодировать →</button>
+          <button class="btn btn-sec" onclick="runBase64('decode')">← Декодировать</button>
+          <button class="btn btn-sec" onclick="copyText(document.getElementById('b64Output').textContent)">Копировать результат</button>
+        </div>
+        <div class="mono" id="b64Output">—</div>
+      </div>
+    </section>
+
+    <section id="oauth" class="tab">
+      <h1>OAuth 2.0 PKCE + Deep Link</h1>
+      <div class="card">
+        <p style="color:var(--muted); margin-bottom:14px; font-size:0.92rem;">
+          Авторизация через системный браузер с возвратом по схеме <code>vaultflow://oauth/callback</code>.
+        </p>
+        <div class="row" style="margin-bottom:14px;">
           <button class="btn" onclick="startOAuth('github')">Войти через GitHub</button>
-          <button class="btn btn-secondary" onclick="startOAuth('google')">Войти через Google</button>
+          <button class="btn btn-sec" onclick="startOAuth('google')">Войти через Google</button>
         </div>
-        <div class="mono-box" style="font-size: 13px; color: var(--text-muted);" id="oauthStatus">
-          Ожидание запуска авторизации...
-        </div>
+        <div class="mono" id="oauthResult">Статус: ожидание авторизации</div>
       </div>
     </section>
   </main>
@@ -273,289 +287,267 @@
 
   <script>
     const isTauri = Boolean(window.__TAURI__);
+    document.getElementById('envBadge').textContent = isTauri ? 'TAURI + SQLITE' : 'WEB PREVIEW';
     let db = null;
-    let state = { notes: [], tasks: [], totp: [] };
 
-    // Переключение вкладок
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    document.querySelectorAll('nav button').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
       });
     });
 
     function showToast(msg) {
       const t = document.getElementById('toast');
-      t.innerText = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2200);
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 2000);
     }
 
     async function copyText(text) {
-      if (!text) return;
-      try {
-        if (isTauri && window.__TAURI__.clipboardManager) {
-          await window.__TAURI__.clipboardManager.writeText(text);
-        } else {
-          await navigator.clipboard.writeText(text);
-        }
-        showToast('Скопировано в буфер обмена');
-      } catch (e) {
-        showToast('Ошибка копирования');
+      if (!text || text === '—') return;
+      if (isTauri && window.__TAURI__.clipboardManager) {
+        await window.__TAURI__.clipboardManager.writeText(text);
+      } else {
+        await navigator.clipboard.writeText(text);
       }
+      showToast('Скопировано в буфер обмена');
     }
 
     function uid() {
       return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
     }
 
-    // Инициализация хранилища (SQLite в Tauri или localStorage в браузере)
     async function initApp() {
       if (isTauri) {
-        document.getElementById('envBadge').innerText = 'TAURI RUST';
-        try {
-          db = await window.__TAURI__.sql.load('sqlite:vaultflow.db');
-          state.notes = await db.select('SELECT * FROM notes ORDER BY updated_at DESC');
-          state.tasks = await db.select('SELECT * FROM tasks ORDER BY completed ASC');
-          state.totp = await db.select('SELECT * FROM totp_accounts');
-        } catch (e) {
-          console.error('SQLite error:', e);
-        }
-
-        // Подписка на Deep Link OAuth callback
+        db = await window.__TAURI__.sql.load('sqlite:vaultflow.db');
         window.__TAURI__.event.listen('oauth-callback-url', async (event) => {
           try {
             const url = new URL(event.payload);
             const code = url.searchParams.get('code');
             const returnedState = url.searchParams.get('state');
             if (code) {
-              document.getElementById('oauthStatus').innerText = 'Обмен authorization_code на токен...';
+              document.getElementById('oauthResult').textContent = 'Обмен кода на токен...';
               const res = await window.__TAURI__.core.invoke('finish_oauth_login', { code, returnedState });
-              document.getElementById('oauthStatus').innerText = `Успешно (${res.provider}): ${res.access_token}`;
+              document.getElementById('oauthResult').textContent = `Провайдер: ${res.provider} | Token: ${res.access_token}`;
             }
-          } catch (err) {
-            document.getElementById('oauthStatus').innerText = 'Ошибка OAuth: ' + err;
+          } catch (e) {
+            document.getElementById('oauthResult').textContent = 'Ошибка OAuth: ' + e;
           }
         });
-      } else {
-        state.notes = JSON.parse(localStorage.getItem('vf_notes') || '[]');
-        state.tasks = JSON.parse(localStorage.getItem('vf_tasks') || '[]');
-        state.totp = JSON.parse(localStorage.getItem('vf_totp') || '[]');
       }
-
-      renderNotes();
-      renderTasks();
-      generatePassword();
-      updateTotpList();
-      setInterval(updateTotpList, 1000);
+      await renderNotes();
+      await renderTasks();
+      await renderTotp();
+      genPassword();
+      setInterval(renderTotp, 1000);
     }
 
-    function syncLocal() {
-      if (!isTauri) {
-        localStorage.setItem('vf_notes', JSON.stringify(state.notes));
-        localStorage.setItem('vf_tasks', JSON.stringify(state.tasks));
-        localStorage.setItem('vf_totp', JSON.stringify(state.totp));
-      }
-    }
-
-    // --- ЗАМЕТКИ ---
-    async function saveNote() {
+    // --- NOTES ---
+    async function addNote() {
       const title = document.getElementById('noteTitle').value.trim();
       const tags = document.getElementById('noteTags').value.trim();
       const content = document.getElementById('noteContent').value.trim();
       if (!title && !content) return;
+      const id = uid();
+      const updated_at = new Date().toISOString();
 
-      const note = { id: uid(), title: title || 'Без названия', tags, content, updated_at: new Date().toISOString() };
-      if (isTauri && db) {
-        await db.execute('INSERT INTO notes (id, title, tags, content, updated_at) VALUES ($1, $2, $3, $4, $5)',
-          [note.id, note.title, note.tags, note.content, note.updated_at]);
+      if (db) {
+        await db.execute('INSERT INTO notes (id, title, tags, content, updated_at) VALUES ($1, $2, $3, $4, $5)', [id, title || 'Без названия', tags, content, updated_at]);
+      } else {
+        const list = JSON.parse(localStorage.getItem('vf_notes') || '[]');
+        list.unshift({ id, title: title || 'Без названия', tags, content, updated_at });
+        localStorage.setItem('vf_notes', JSON.stringify(list));
       }
-      state.notes.unshift(note);
-      syncLocal();
       document.getElementById('noteTitle').value = '';
       document.getElementById('noteTags').value = '';
       document.getElementById('noteContent').value = '';
       renderNotes();
-      showToast('Заметка сохранена');
     }
 
     async function deleteNote(id) {
-      if (isTauri && db) await db.execute('DELETE FROM notes WHERE id = $1', [id]);
-      state.notes = state.notes.filter(n => n.id !== id);
-      syncLocal();
+      if (db) {
+        await db.execute('DELETE FROM notes WHERE id = $1', [id]);
+      } else {
+        const list = JSON.parse(localStorage.getItem('vf_notes') || '[]').filter(n => n.id !== id);
+        localStorage.setItem('vf_notes', JSON.stringify(list));
+      }
       renderNotes();
     }
 
-    function renderNotes() {
-      const q = document.getElementById('noteSearch').value.toLowerCase();
-      const container = document.getElementById('notesList');
-      const filtered = state.notes.filter(n =>
-        n.title.toLowerCase().includes(q) || n.tags.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)
-      );
-      container.innerHTML = filtered.map(n => `
-        <div class="list-item">
+    async function renderNotes() {
+      const list = db
+        ? await db.select('SELECT * FROM notes ORDER BY updated_at DESC')
+        : JSON.parse(localStorage.getItem('vf_notes') || '[]');
+      document.getElementById('notesList').innerHTML = list.map(n => `
+        <div class="item">
           <div>
             <strong>${escapeHtml(n.title)}</strong>
-            <p style="font-size: 13px; color: var(--text-muted); margin-top: 5px; white-space: pre-wrap;">${escapeHtml(n.content)}</p>
-            <div>${n.tags ? n.tags.split(',').map(t => `<span class="tag">#${escapeHtml(t.trim())}</span>`).join('') : ''}</div>
+            ${n.tags ? `<div style="color:var(--primary); font-size:0.8rem; margin:4px 0;">#${escapeHtml(n.tags)}</div>` : ''}
+            <div style="color:var(--muted); margin-top:6px; white-space:pre-wrap;">${escapeHtml(n.content)}</div>
           </div>
-          <button class="btn btn-danger" onclick="deleteNote('${n.id}')">Удалить</button>
+          <button class="btn-del" onclick="deleteNote('${n.id}')">Удалить</button>
         </div>
       `).join('');
     }
 
-    // --- ЗАДАЧИ ---
+    // --- TASKS ---
     async function addTask() {
       const title = document.getElementById('taskTitle').value.trim();
+      const priority = document.getElementById('taskPriority').value;
+      const due_date = document.getElementById('taskDue').value;
       if (!title) return;
-      const task = {
-        id: uid(),
-        title,
-        priority: document.getElementById('taskPriority').value,
-        due_date: document.getElementById('taskDue').value,
-        completed: 0
-      };
-      if (isTauri && db) {
-        await db.execute('INSERT INTO tasks (id, title, priority, due_date, completed) VALUES ($1, $2, $3, $4, $5)',
-          [task.id, task.title, task.priority, task.due_date, 0]);
+      const id = uid();
+
+      if (db) {
+        await db.execute('INSERT INTO tasks (id, title, priority, due_date, completed) VALUES ($1, $2, $3, $4, 0)', [id, title, priority, due_date]);
+      } else {
+        const list = JSON.parse(localStorage.getItem('vf_tasks') || '[]');
+        list.unshift({ id, title, priority, due_date, completed: 0 });
+        localStorage.setItem('vf_tasks', JSON.stringify(list));
       }
-      state.tasks.unshift(task);
-      syncLocal();
       document.getElementById('taskTitle').value = '';
       renderTasks();
     }
 
-    async function toggleTask(id) {
-      const task = state.tasks.find(t => t.id === id);
-      if (!task) return;
-      task.completed = task.completed ? 0 : 1;
-      if (isTauri && db) await db.execute('UPDATE tasks SET completed = $1 WHERE id = $2', [task.completed, id]);
-      syncLocal();
+    async function toggleTask(id, completed) {
+      const next = completed ? 0 : 1;
+      if (db) {
+        await db.execute('UPDATE tasks SET completed = $1 WHERE id = $2', [next, id]);
+      } else {
+        const list = JSON.parse(localStorage.getItem('vf_tasks') || '[]').map(t => t.id === id ? { ...t, completed: next } : t);
+        localStorage.setItem('vf_tasks', JSON.stringify(list));
+      }
       renderTasks();
     }
 
     async function deleteTask(id) {
-      if (isTauri && db) await db.execute('DELETE FROM tasks WHERE id = $1', [id]);
-      state.tasks = state.tasks.filter(t => t.id !== id);
-      syncLocal();
+      if (db) {
+        await db.execute('DELETE FROM tasks WHERE id = $1', [id]);
+      } else {
+        const list = JSON.parse(localStorage.getItem('vf_tasks') || '[]').filter(t => t.id !== id);
+        localStorage.setItem('vf_tasks', JSON.stringify(list));
+      }
       renderTasks();
     }
 
-    function renderTasks() {
-      const labels = { high: 'Высокий', medium: 'Средний', low: 'Низкий' };
-      document.getElementById('tasksList').innerHTML = state.tasks.map(t => `
-        <div class="list-item" style="align-items: center;">
-          <label class="checkbox-label" style="flex: 1; color: var(--text-main);">
-            <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}')" />
-            <span class="${t.completed ? 'completed-text' : ''}">${escapeHtml(t.title)}</span>
+    async function renderTasks() {
+      const list = db
+        ? await db.select('SELECT * FROM tasks ORDER BY completed ASC')
+        : JSON.parse(localStorage.getItem('vf_tasks') || '[]');
+      document.getElementById('tasksList').innerHTML = list.map(t => `
+        <div class="item">
+          <label class="chk" style="flex:1;">
+            <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask('${t.id}', ${t.completed})" />
+            <span style="${t.completed ? 'text-decoration:line-through; color:var(--muted);' : ''}">
+              ${escapeHtml(t.title)} <small style="color:var(--primary);">[${t.priority}]</small>
+              ${t.due_date ? `<small style="color:var(--muted);">до ${t.due_date}</small>` : ''}
+            </span>
           </label>
-          <span class="priority-${t.priority}">${labels[t.priority] || ''}</span>
-          ${t.due_date ? `<span style="font-size: 12px; color: var(--text-muted);">${t.due_date}</span>` : ''}
-          <button class="btn btn-danger" onclick="deleteTask('${t.id}')">✕</button>
+          <button class="btn-del" onclick="deleteTask('${t.id}')">Удалить</button>
         </div>
       `).join('');
     }
 
-    // --- ПАРОЛИ ---
-    async function generatePassword() {
+    // --- PASSWORDS ---
+    async function genPassword() {
       const opts = {
-        length: parseInt(document.getElementById('pwdLength').value, 10),
+        length: parseInt(document.getElementById('pwdLen').value, 10),
         use_upper: document.getElementById('optUpper').checked,
         use_lower: document.getElementById('optLower').checked,
         use_numbers: document.getElementById('optNum').checked,
         use_symbols: document.getElementById('optSym').checked,
-        exclude_ambiguous: document.getElementById('optAmbig').checked
+        exclude_ambiguous: document.getElementById('optAmb').checked,
       };
 
       if (isTauri) {
         const res = await window.__TAURI__.core.invoke('generate_password_rust', { opts });
-        document.getElementById('pwdOutput').innerText = res.password;
-        document.getElementById('pwdEntropy').innerText = res.entropy_bits + ' бит';
+        document.getElementById('pwdOutput').textContent = res.password;
+        document.getElementById('pwdEntropy').textContent = `Энтропия: ${res.entropy_bits} бит (Rust OsRng)`;
       } else {
         let chars = '';
-        if (opts.use_upper) chars += opts.exclude_ambiguous ? 'ABCDEFGHJKMNPQRSTUVWXYZ' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        if (opts.use_lower) chars += opts.exclude_ambiguous ? 'abcdefghjkmnpqrstuvwxyz' : 'abcdefghijklmnopqrstuvwxyz';
-        if (opts.use_numbers) chars += opts.exclude_ambiguous ? '23456789' : '0123456789';
+        if (opts.use_upper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        if (opts.use_lower) chars += 'abcdefghijklmnopqrstuvwxyz';
+        if (opts.use_numbers) chars += '0123456789';
         if (opts.use_symbols) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+        if (opts.exclude_ambiguous) chars = chars.replace(/[ILOilo01]/g, '');
         if (!chars) chars = 'abcdefghijklmnopqrstuvwxyz';
-
         const arr = new Uint32Array(opts.length);
         crypto.getRandomValues(arr);
         const pwd = Array.from(arr, x => chars[x % chars.length]).join('');
         const entropy = Math.round(opts.length * Math.log2(chars.length));
-        document.getElementById('pwdOutput').innerText = pwd;
-        document.getElementById('pwdEntropy').innerText = entropy + ' бит';
+        document.getElementById('pwdOutput').textContent = pwd;
+        document.getElementById('pwdEntropy').textContent = `Энтропия: ${entropy} бит (Web Crypto)`;
       }
     }
 
-    // --- TOTP 2FA ---
-    async function addTotpAccount() {
-      const issuer = document.getElementById('totpIssuer').value.trim() || 'Сервис';
-      const account = document.getElementById('totpAccount').value.trim() || 'Аккаунт';
-      const secret = document.getElementById('totpSecret').value.replace(/\s+/g, '').toUpperCase();
+    // --- TOTP ---
+    async function addTotp() {
+      const issuer = document.getElementById('totpIssuer').value.trim() || 'Service';
+      const account = document.getElementById('totpAccount').value.trim() || 'user';
+      const secret = document.getElementById('totpSecret').value.trim().replace(/\s+/g, '').toUpperCase();
       if (!secret) return;
+      const id = uid();
 
-      const item = { id: uid(), issuer, account, secret };
-      if (isTauri && db) {
-        await db.execute('INSERT INTO totp_accounts (id, issuer, account, secret) VALUES ($1, $2, $3, $4)',
-          [item.id, item.issuer, item.account, item.secret]);
+      if (db) {
+        await db.execute('INSERT INTO totp_accounts (id, issuer, account, secret) VALUES ($1, $2, $3, $4)', [id, issuer, account, secret]);
+      } else {
+        const list = JSON.parse(localStorage.getItem('vf_totp') || '[]');
+        list.push({ id, issuer, account, secret });
+        localStorage.setItem('vf_totp', JSON.stringify(list));
       }
-      state.totp.push(item);
-      syncLocal();
       document.getElementById('totpIssuer').value = '';
       document.getElementById('totpAccount').value = '';
       document.getElementById('totpSecret').value = '';
-      updateTotpList();
+      renderTotp();
     }
 
     async function deleteTotp(id) {
-      if (isTauri && db) await db.execute('DELETE FROM totp_accounts WHERE id = $1', [id]);
-      state.totp = state.totp.filter(x => x.id !== id);
-      syncLocal();
-      updateTotpList();
+      if (db) {
+        await db.execute('DELETE FROM totp_accounts WHERE id = $1', [id]);
+      } else {
+        const list = JSON.parse(localStorage.getItem('vf_totp') || '[]').filter(x => x.id !== id);
+        localStorage.setItem('vf_totp', JSON.stringify(list));
+      }
+      renderTotp();
     }
 
-    async function updateTotpList() {
+    async function renderTotp() {
+      const list = db
+        ? await db.select('SELECT * FROM totp_accounts')
+        : JSON.parse(localStorage.getItem('vf_totp') || '[]');
       const container = document.getElementById('totpList');
-      if (!state.totp.length) {
-        container.innerHTML = '';
-        return;
-      }
-      const htmlParts = await Promise.all(state.totp.map(async item => {
+      if (!list.length) { container.innerHTML = ''; return; }
+
+      const cards = await Promise.all(list.map(async item => {
         let code = '------';
-        let rem = 30 - (Math.floor(Date.now() / 1000) % 30);
+        let ttl = 30 - (Math.floor(Date.now() / 1000) % 30);
         if (isTauri) {
           try {
             const res = await window.__TAURI__.core.invoke('generate_totp_code', { secretBase32: item.secret });
             code = res.code;
-            rem = res.seconds_remaining;
-          } catch (e) {
-            code = 'ERR';
-          }
+            ttl = res.seconds_remaining;
+          } catch (e) { code = 'ERR'; }
         } else {
-          code = await computeTotpWeb(item.secret);
+          code = await webTotp(item.secret);
         }
         return `
-          <div class="list-item" style="align-items: center;">
+          <div class="item">
             <div>
-              <strong>${escapeHtml(item.issuer)}</strong>
-              <div style="font-size: 12px; color: var(--text-muted);">${escapeHtml(item.account)}</div>
+              <div style="font-weight:600;">${escapeHtml(item.issuer)} <small style="color:var(--muted);">(${escapeHtml(item.account)})</small></div>
+              <div class="totp-code" onclick="copyText('${code}')" style="cursor:pointer;" title="Нажмите, чтобы скопировать">${code}</div>
+              <small style="color:var(--muted);">Обновление через ${ttl} сек.</small>
             </div>
-            <div class="row">
-              <span class="totp-code">${code}</span>
-              <span style="font-size: 12px; color: var(--text-muted); width: 32px;">${rem}с</span>
-              <button class="btn btn-secondary" onclick="copyText('${code}')">Копия</button>
-              <button class="btn btn-danger" onclick="deleteTotp('${item.id}')">✕</button>
-            </div>
+            <button class="btn-del" onclick="deleteTotp('${item.id}')">Удалить</button>
           </div>
         `;
       }));
-      container.innerHTML = htmlParts.join('');
+      container.innerHTML = cards.join('');
     }
 
-    async function computeTotpWeb(base32) {
+    async function webTotp(base32) {
       try {
         const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
         let bits = '';
@@ -566,63 +558,52 @@
         }
         const bytes = new Uint8Array(Math.floor(bits.length / 8));
         for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(bits.slice(i * 8, i * 8 + 8), 2);
-
-        const counter = Math.floor(Date.now() / 1000 / 30);
+        const epoch = Math.floor(Date.now() / 1000 / 30);
         const buf = new ArrayBuffer(8);
-        new DataView(buf).setUint32(4, counter, false);
-
+        new DataView(buf).setUint32(4, epoch);
         const key = await crypto.subtle.importKey('raw', bytes, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
         const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, buf));
-        const offset = sig[sig.length - 1] & 0xf;
-        const bin = ((sig[offset] & 0x7f) << 24) | (sig[offset + 1] << 16) | (sig[offset + 2] << 8) | sig[offset + 3];
+        const offset = sig[sig.length - 1] & 0x0f;
+        const bin = ((sig[offset] & 0x7f) << 24) | ((sig[offset + 1] & 0xff) << 16) | ((sig[offset + 2] & 0xff) << 8) | (sig[offset + 3] & 0xff);
         return (bin % 1000000).toString().padStart(6, '0');
-      } catch {
-        return 'ERR';
-      }
+      } catch { return 'ERR'; }
     }
 
     // --- BASE64 ---
     async function runBase64(mode) {
       const input = document.getElementById('b64Input').value;
       const urlSafe = document.getElementById('b64UrlSafe').checked;
-      const out = document.getElementById('b64Output');
-
       try {
         if (isTauri) {
-          out.value = mode === 'encode'
-            ? await window.__TAURI__.core.invoke('encode_base64_rust', { input, urlSafe })
-            : await window.__TAURI__.core.invoke('decode_base64_rust', { input, urlSafe });
+          const cmd = mode === 'encode' ? 'encode_base64_rust' : 'decode_base64_rust';
+          document.getElementById('b64Output').textContent = await window.__TAURI__.core.invoke(cmd, { input, urlSafe });
         } else {
           if (mode === 'encode') {
-            const bytes = new TextEncoder().encode(input);
-            let b64 = btoa(String.fromCharCode(...bytes));
+            let b64 = btoa(unescape(encodeURIComponent(input)));
             if (urlSafe) b64 = b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-            out.value = b64;
+            document.getElementById('b64Output').textContent = b64;
           } else {
-            let str = input.trim();
-            if (urlSafe) str = str.replace(/-/g, '+').replace(/_/g, '/');
-            const bin = atob(str);
-            const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
-            out.value = new TextDecoder().decode(bytes);
+            let s = input.trim();
+            if (urlSafe) s = s.replace(/-/g, '+').replace(/_/g, '/');
+            document.getElementById('b64Output').textContent = decodeURIComponent(escape(atob(s)));
           }
         }
       } catch (e) {
-        out.value = 'Ошибка: ' + e;
+        document.getElementById('b64Output').textContent = 'Ошибка: ' + e;
       }
     }
 
-    // --- OAUTH 2.0 ---
+    // --- OAUTH ---
     async function startOAuth(provider) {
-      const box = document.getElementById('oauthStatus');
       if (!isTauri) {
-        box.innerText = 'OAuth 2.0 PKCE + Deep Link работает в нативной сборке Tauri.';
+        document.getElementById('oauthResult').textContent = 'OAuth PKCE + Deep Link доступен в собранном приложении Tauri.';
         return;
       }
       try {
-        box.innerText = 'Открытие системного браузера для ' + provider + '...';
+        document.getElementById('oauthResult').textContent = 'Открытие браузера для авторизации...';
         await window.__TAURI__.core.invoke('start_oauth_login', { provider });
       } catch (e) {
-        box.innerText = 'Ошибка: ' + e;
+        document.getElementById('oauthResult').textContent = 'Ошибка запуска OAuth: ' + e;
       }
     }
 

@@ -58,23 +58,20 @@ jobs:
       - name: Install Tauri CLI
         run: cargo install tauri-cli --version "^2.0.0" --locked
 
-      - name: Generate Icons (if missing)
-        run: |
-          if [ ! -f "src-tauri/icons/icon.icns" ]; then
-            cargo tauri icon app-icon.png
-          fi
+      - name: Generate app icons
+        run: cargo tauri icon app-icon.png
 
       - name: Build Tauri Desktop App
         run: cargo tauri build --no-bundle
 
-      - name: Upload Windows binary artifact
+      - name: Upload Windows artifact
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
           name: desktop-windows
           path: src-tauri/target/release/vaultflow.exe
 
-      - name: Upload Linux binary artifact
+      - name: Upload Linux artifact
         if: matrix.platform == 'ubuntu-22.04'
         uses: actions/upload-artifact@v4
         with:
@@ -97,12 +94,12 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-34 build-tools;34.0.0 ndk;26.3.11579264'
 
-      - name: Install Android NDK and Build Tools
-        run: |
-          sdkmanager --install "ndk;26.3.11579264" "build-tools;34.0.0" "platforms;android-34"
-          echo "NDK_HOME=$ANDROID_HOME/ndk/26.3.11579264" >> $GITHUB_ENV
+      - name: Set NDK_HOME environment variable
+        run: echo "NDK_HOME=$ANDROID_HOME/ndk/26.3.11579264" >> $GITHUB_ENV
 
       - name: Setup Rust toolchain with Android targets
         uses: dtolnay/rust-toolchain@stable
@@ -114,12 +111,13 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: Install Tauri CLI and Initialize Android
+      - name: Install Tauri CLI & Generate Icons
         run: |
           cargo install tauri-cli --version "^2.0.0" --locked
-          if [ ! -f "src-tauri/icons/icon.icns" ]; then
-            cargo tauri icon app-icon.png
-          fi
+          cargo tauri icon app-icon.png
+
+      - name: Initialize Android project (if not committed)
+        run: |
           if [ ! -d "src-tauri/gen/android" ]; then
             cargo tauri android init
           fi

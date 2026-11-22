@@ -82,10 +82,6 @@ pub fn generate_password_rust(opts: PasswordOptions) -> Result<GeneratedPassword
 #[tauri::command]
 pub fn generate_totp_code(secret_base32: String) -> Result<TotpCodeResult, String> {
     let clean_secret = secret_base32.replace(' ', "").to_uppercase();
-    if clean_secret.is_empty() {
-        return Err("Секрет не может быть пустым".into());
-    }
-
     let secret_bytes = Secret::Encoded(clean_secret)
         .to_bytes()
         .map_err(|e| format!("Некорректный Base32 секрет: {}", e))?;

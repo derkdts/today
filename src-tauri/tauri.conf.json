@@ -20,7 +20,7 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://github.com https://api.github.com https://accounts.google.com https://oauth2.googleapis.com"
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: asset: http://asset.localhost https://asset.localhost;"
     }
   },
   "plugins": {

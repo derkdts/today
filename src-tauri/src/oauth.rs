@@ -30,17 +30,19 @@ pub struct OAuthTokenResult {
     pub provider: String,
 }
 
-fn build_oauth_client(provider: &str) -> Result<BasicClient, String> {
-    let (client_id, auth_url, token_url) = match provider {
+fn build_oauth_client(provider: &str) -> Result<(BasicClient, Vec<&'static str>), String> {
+    let (client_id, auth_url, token_url, scopes) = match provider {
         "github" => (
             "YOUR_GITHUB_CLIENT_ID",
             "https://github.com/login/oauth/authorize",
             "https://github.com/login/oauth/access_token",
+            vec!["read:user"],
         ),
         "google" => (
             "YOUR_GOOGLE_CLIENT_ID",
             "https://accounts.google.com/o/oauth2/v2/auth",
             "https://oauth2.googleapis.com/token",
+            vec!["openid", "email", "profile"],
         ),
         _ => return Err("Неподдерживаемый OAuth провайдер".into()),
     };
@@ -55,7 +57,7 @@ fn build_oauth_client(provider: &str) -> Result<BasicClient, String> {
         RedirectUrl::new("vaultflow://oauth/callback".to_string()).map_err(|e| e.to_string())?,
     );
 
-    Ok(client)
+    Ok((client, scopes))
 }
 
 #[tauri::command]
@@ -64,23 +66,18 @@ pub fn start_oauth_login(
     state: State<'_, OAuthState>,
     provider: String,
 ) -> Result<String, String> {
-    let client = build_oauth_client(&provider)?;
+    let (client, scopes) = build_oauth_client(&provider)?;
     let (pkce_challenge, pkce_verifier) = PkceCodeChallenge::new_random_sha256();
 
-    let mut req = client
+    let mut auth_req = client
         .authorize_url(CsrfToken::new_random)
         .set_pkce_challenge(pkce_challenge);
 
-    if provider == "github" {
-        req = req.add_scope(Scope::new("read:user".to_string()));
-    } else if provider == "google" {
-        req = req
-            .add_scope(Scope::new("openid".to_string()))
-            .add_scope(Scope::new("email".to_string()))
-            .add_scope(Scope::new("profile".to_string()));
+    for s in scopes {
+        auth_req = auth_req.add_scope(Scope::new(s.to_string()));
     }
 
-    let (auth_url, csrf_token) = req.url();
+    let (auth_url, csrf_token) = auth_req.url();
 
     *state.pkce_verifier.lock().unwrap() = Some(pkce_verifier);
     *state.csrf_state.lock().unwrap() = Some(csrf_token.secret().clone());
@@ -102,7 +99,7 @@ pub async fn finish_oauth_login(
     let expected_state = state.csrf_state.lock().unwrap().take();
     if let (Some(expected), Some(actual)) = (expected_state, returned_state) {
         if expected != actual {
-            return Err("Несовпадение CSRF state — возможна подмена запроса".into());
+            return Err("Ошибка безопасности: несовпадение CSRF state".into());
         }
     }
 
@@ -111,9 +108,9 @@ pub async fn finish_oauth_login(
         .lock()
         .unwrap()
         .take()
-        .ok_or("Активная OAuth-сессия не найдена")?;
+        .unwrap_or_else(|| "github".to_string());
 
-    let client = build_oauth_client(&provider)?;
+    let (client, _) = build_oauth_client(&provider)?;
 
     let verifier = state
         .pkce_verifier

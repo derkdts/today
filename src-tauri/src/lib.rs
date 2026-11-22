@@ -10,14 +10,11 @@ use tauri_plugin_deep_link::DeepLinkExt;
 pub fn run() {
     let mut builder = tauri::Builder::default();
 
-    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    #[cfg(desktop)]
     {
-        builder = builder.plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.set_focus();
-            }
-            if let Some(url) = argv.into_iter().find(|arg| arg.starts_with("vaultflow://")) {
-                let _ = app.emit("oauth-callback-url", url);
             }
         }));
     }
@@ -40,7 +37,8 @@ pub fn run() {
 
             let handle = app.handle().clone();
             app.deep_link().on_open_url(move |event| {
-                if let Some(first_url) = event.urls().first() {
+                let urls = event.urls();
+                if let Some(first_url) = urls.first() {
                     let _ = handle.emit("oauth-callback-url", first_url.to_string());
                 }
             });
