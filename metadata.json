@@ -1,0 +1,6 @@
+{
+  "name": "WorkDesk",
+  "description": "Кроссплатформенный рабочий органайзер на Tauri + Rust: ссылки, заметки, задачи, генератор паролей, 2FA/OAuth коды, Base64 и настройки.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

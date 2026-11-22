@@ -1,0 +1,26 @@
+[package]
+name = "workdesk"
+version = "1.0.0"
+description = "Кроссплатформенный рабочий органайзер: ссылки, заметки, задачи, генератор паролей, 2FA/OAuth коды и Base64"
+authors = ["WorkDesk Contributors"]
+edition = "2021"
+
+[lib]
+name = "workdesk_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.22"
+data-encoding = "2"
+hmac = "0.12"
+sha1 = "0.10"
+sha2 = "0.10"
+rand = "0.8"
+url = "2"

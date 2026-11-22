@@ -1,0 +1,68 @@
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import fs from 'fs';
+import path from 'path';
+import {defineConfig} from 'vite';
+
+const host = process.env.TAURI_DEV_HOST;
+
+export default defineConfig(() => {
+  return {
+    clearScreen: false,
+    envPrefix: ['VITE_', 'TAURI_ENV_*'],
+    plugins: [
+      react(),
+      tailwindcss(),
+      // Copies src/assets into dist/ so root-relative URLs like
+      // "/src/assets/images/..." (e.g. generate_image output) still resolve
+      // in production builds. Do not remove.
+      {
+        name: 'copy-unbundled-src-assets',
+        apply: 'build',
+        closeBundle(error?: Error): void {
+          if (error) {
+            return;
+          }
+          const distDir = path.resolve(__dirname, 'dist');
+          const srcAssets = path.resolve(__dirname, 'src/assets');
+          const distAssets = path.resolve(distDir, 'src/assets');
+          if (fs.existsSync(distDir) && fs.existsSync(srcAssets)) {
+            fs.cpSync(srcAssets, distAssets, {recursive: true, force: true});
+          }
+        },
+      },
+    ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, '.'),
+      },
+    },
+    server: {
+      port: Number(process.env.PORT) || 3000,
+      strictPort: false,
+      host: host || false,
+      // HMR is disabled in AI Studio via DISABLE_HMR env var.
+      // Do not modify—file watching is disabled to prevent flickering during agent edits.
+      hmr: process.env.DISABLE_HMR !== 'true'
+        ? host
+          ? {protocol: 'ws', host, port: 1421}
+          : true
+        : false,
+      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
+      watch:
+        process.env.DISABLE_HMR === 'true'
+          ? null
+          : {
+              ignored: ['**/src-tauri/**'],
+            },
+    },
+    build: {
+      target:
+        process.env.TAURI_ENV_PLATFORM === 'windows'
+          ? 'chrome105'
+          : 'safari13',
+      minify: !process.env.TAURI_ENV_DEBUG ? ('esbuild' as const) : false,
+      sourcemap: !!process.env.TAURI_ENV_DEBUG,
+    },
+  };
+});
